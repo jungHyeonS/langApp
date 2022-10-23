@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity } from 'react-native-web';
+import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
-
+import { Animated } from 'react-native';
 
 const Container = styled.View`
   flex: 1;
@@ -10,33 +10,36 @@ const Container = styled.View`
 `
 
 
-const Box = styled.TouchableOpacity`
+// const Box = styled(Animated.createAnimatedComponent(TouchableOpacity))`
+const Box = styled.View`
 background-color: tomato;
 width: 200px;
 height: 200px;
 `
-
+const AnimatedBox = Animated.createAnimatedComponent(Box);
 
 export default function App() {
-  const [y,setY] = useState(0);
-  const [inservalId,setIntervalId] = useState(null);
+  const Y = new Animated.Value(0)
   const moveUp = () => {
-    const id = setInterval(()=>{
-      setY(prev => prev + 1)
-    },10)
-    setIntervalId(id);
-    // setY(-200)
+    // Animated.timing(Y,{
+    //   toValue :-200,
+    //   useNativeDriver:true
+    // }).start()
+
+    Animated.spring(Y,{
+      toValue :-200,
+      bounciness:15,
+      useNativeDriver:true
+    }).start()
   }
-  useEffect(()=>{
-    if(y === 200){
-      clearInterval(inservalId);
-    }
-  },[y,inservalId])
   return (
     <Container>
-      <Box onPress={moveUp} style={{
-        transform : [{translateY:y}]
-      }}/>
+      <TouchableOpacity onPress={moveUp} >
+        <AnimatedBox style={{
+          transform : [{translateY:Y}]
+        }}/>
+      </TouchableOpacity>
+      
     </Container>
   );
 }
