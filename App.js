@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Easing, TouchableOpacity } from 'react-native';
+import { Easing, Pressable, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { Animated } from 'react-native';
 
@@ -9,40 +9,40 @@ const Container = styled.View`
   align-items: center;
 `
 
-
-// const Box = styled(Animated.createAnimatedComponent(TouchableOpacity))`
-const Box = styled.View`
+// const Box = styled.View`
+const Box = styled(Animated.createAnimatedComponent(Pressable))`
 background-color: tomato;
 width: 200px;
 height: 200px;
 `
-const AnimatedBox = Animated.createAnimatedComponent(Box);
+// const AnimatedBox = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function App() {
   const [up,setUp] = useState(false);
-  const Y = useRef(new Animated.Value(0)).current
+  const Y_POSITION = useRef(new Animated.Value(300)).current
   const toggleUp = () => setUp((prev) => !prev)
   const moveUp = () => {
-    Animated.spring(Y,{
-      toValue : up ? 200 : -200,
+    Animated.timing(Y_POSITION,{
+      toValue : up ? 300 : -300,
       useNativeDriver:true,
-      easing:Easing.circle
+      duration:5000
     }).start(toggleUp)
-    
-    // Animated.spring(Y,{
-    //   toValue :-200,
-    //   bounciness:15,
-    //   useNativeDriver:true
-    // }).start()
   }
+  const opacity = Y_POSITION.interpolate({
+    inputRange: [-300,0,300],
+    outputRange : [1,0.5,1]
+  })
+  const borderRadius = Y_POSITION.interpolate({
+    inputRange : [-300,300],
+    outputRange : [100,0]
+  })
   return (
     <Container>
-      <TouchableOpacity onPress={moveUp} >
-        <AnimatedBox style={{
-          transform : [{translateY:Y}]
-        }}/>
-      </TouchableOpacity>
-      
+        <Box style={{
+          opacity,
+          borderRadius,
+          transform : [{translateY:Y_POSITION}]
+        }} onPress={moveUp}/>
     </Container>
   );
 }
