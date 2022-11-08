@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Easing, Pressable, TouchableOpacity } from 'react-native';
+import { Dimensions, Easing, Pressable, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { Animated } from 'react-native';
 
@@ -17,15 +17,52 @@ height: 200px;
 `
 // const AnimatedBox = Animated.createAnimatedComponent(TouchableOpacity);
 
+
+const {width:SCREEN_WIDTH,height:SCREEN_HEIGHT} = Dimensions.get("window");
 export default function App() {
-  const [up,setUp] = useState(false);
-  const POSITION = useRef(new Animated.ValueXY({x:0,y:300})).current
-  const toggleUp = () => setUp((prev) => !prev)
+  const POSITION = useRef(new Animated.ValueXY({x:-SCREEN_WIDTH / 2 + 100,y:-SCREEN_HEIGHT / 2 + 100})).current
+  const topLeft = Animated.timing(POSITION,{
+    toValue:{
+      x : -SCREEN_WIDTH / 2 + 100,
+      y:-SCREEN_HEIGHT / 2 + 100
+    },
+    useNativeDriver:false
+  })
+  const bottomLeft = Animated.timing(POSITION,{
+    toValue:{
+      x : -SCREEN_WIDTH / 2 + 100,
+      y:SCREEN_HEIGHT / 2 - 100
+    },
+    useNativeDriver:false
+  })
+
+  const bottomRight = Animated.timing(POSITION,{
+    toValue:{
+      x : SCREEN_WIDTH / 2 - 100,
+      y:SCREEN_HEIGHT / 2 - 100
+    },
+    useNativeDriver:false
+  })
+
+  const topRight = Animated.timing(POSITION,{
+    toValue:{
+      x : SCREEN_WIDTH / 2 - 100,
+      y:-SCREEN_HEIGHT / 2 + 100
+    },
+    useNativeDriver:false
+  })
+
   const moveUp = () => {
-    Animated.timing(POSITION,{
-      toValue : up ? 300 : -300,
-      useNativeDriver:false,
-    }).start(toggleUp)
+    // Animated.timing(POSITION,{
+    //   toValue : up ? 200 : -200,
+    //   useNativeDriver:false,
+    // }).start(toggleUp)
+    Animated.loop(
+      Animated.sequence([
+        bottomLeft,bottomRight,topRight,topLeft
+      ])
+    ).start();
+    
   }
   const borderRadius = POSITION.y.interpolate({
     inputRange : [-300,300],
@@ -44,7 +81,7 @@ export default function App() {
         <Box style={{
           borderRadius,
           backgroundColor:bgColor,
-          transform : [{rotateY:rotation},{translateY:POSITION.y}]
+          transform : [...POSITION.getTranslateTransform()]
         }} onPress={moveUp}/>
     </Container>
   );
