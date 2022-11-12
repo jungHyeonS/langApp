@@ -69,8 +69,18 @@ export default function App() {
   const panResponder = useRef(PanResponder.create({
     //true를 리턴하여 사각형에 터치를 감지
     onStartShouldSetPanResponder : () => true,
-    onPanResponderMove : (_,{dx,dy})=>{
 
+    //움직임이 시작될때 호출된다
+    onPanResponderGrant:()=>{
+      //0이 아니라 이전 위치에서 시작하라고 명시
+      console.log("start");
+      POSITION.setOffset({
+        x:POSITION.x._value,
+        y:POSITION.y._value
+      })
+    },
+    onPanResponderMove : (_,{dx,dy})=>{
+      //dy,dx는 손가락이 이동한거리 이기때문에 0에서부터 시작한다
       //사용자에 터치에따라 위치 변경
       POSITION.setValue({
         x:dx,
@@ -79,13 +89,17 @@ export default function App() {
     },
     //사용자가 손을 떼었을때
     onPanResponderRelease:()=>{
-      Animated.spring(POSITION,{
-        toValue:{
-          x:0,
-          y:0
-        },
-        useNativeDriver:false
-      }).start()
+      //터치가 끝나면 오프셋 초기화
+      POSITION.flattenOffset();
+      // Animated.spring(POSITION,{
+      //   toValue:{
+      //     x:0,
+      //     y:0
+      //   },
+      //   useNativeDriver:false
+      // }).start()
+
+
     }
   })).current;
   console.log(panResponder)
