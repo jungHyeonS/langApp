@@ -1,125 +1,55 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Easing, Pressable, TouchableOpacity,PanResponder } from 'react-native';
+import { Dimensions, Easing, Pressable, TouchableOpacity,PanResponder, View } from 'react-native';
 import styled from 'styled-components/native';
 import { Animated } from 'react-native';
+import {Ionicons} from "@expo/vector-icons"
 
 const Container = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+  background-color: #00a8ff;
 `
 
-// const Box = styled(Animated.createAnimatedComponent(Pressable))`
-const Box = styled.View`
-background-color: tomato;
-width: 200px;
-height: 200px;
+const Card = styled.View`
+  background-color: white;
+  width: 250px;
+  height: 250px;
+  justify-content: center;
+  align-items:center;
+  border-radius:12px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
 `
-const AnimatedBox = Animated.createAnimatedComponent(Box);
+const AnimatedBox = Animated.createAnimatedComponent(Card);
 
-
-const {width:SCREEN_WIDTH,height:SCREEN_HEIGHT} = Dimensions.get("window");
 export default function App() {
-  const POSITION = useRef(new Animated.ValueXY({x:0,y:0})).current
-  const topLeft = Animated.timing(POSITION,{
-    toValue:{
-      x : -SCREEN_WIDTH / 2 + 100,
-      y:-SCREEN_HEIGHT / 2 + 100
-    },
-    useNativeDriver:false
-  })
-  const bottomLeft = Animated.timing(POSITION,{
-    toValue:{
-      x : -SCREEN_WIDTH / 2 + 100,
-      y:SCREEN_HEIGHT / 2 - 100
-    },
-    useNativeDriver:false
-  })
+  
 
-  const bottomRight = Animated.timing(POSITION,{
-    toValue:{
-      x : SCREEN_WIDTH / 2 - 100,
-      y:SCREEN_HEIGHT / 2 - 100
-    },
-    useNativeDriver:false
-  })
+  
+  const scale = useRef(new Animated.ValueXY({x:0,y:0})).current
+  // const onPressIn = () => {
+  //   Animated.spring(scale,{toValue:0.95,useNativeDriver:true}).start()
+  // }
+  // const onPressOut = () => Animated.spring(scale,{toValue:1,useNativeDriver:true}).start()
 
-  const topRight = Animated.timing(POSITION,{
-    toValue:{
-      x : SCREEN_WIDTH / 2 - 100,
-      y:-SCREEN_HEIGHT / 2 + 100
-    },
-    useNativeDriver:false
-  })
-
-  const borderRadius = POSITION.y.interpolate({
-    inputRange : [-300,300],
-    outputRange : [100,0]
-  })
-  const rotation = POSITION.y.interpolate({
-    inputRange:[-300,300],
-    outputRange:["-360deg","360deg"]
-  })
-  const bgColor = POSITION.y.interpolate({
-    inputRange:[-300,300],
-    outputRange:["rgb(255,99,71)","rgb(71,166,255)"]
-  })
-
-
-  const panResponder = useRef(PanResponder.create({
-    //true를 리턴하여 사각형에 터치를 감지
+  const panResponse = useRef(PanResponder.create({
     onStartShouldSetPanResponder : () => true,
-
-    //움직임이 시작될때 호출된다
-    onPanResponderGrant:()=>{
-      //0이 아니라 이전 위치에서 시작하라고 명시
-      console.log("start");
-      POSITION.setOffset({
-        x:POSITION.x._value,
-        y:POSITION.y._value
-      })
+    onPanResponderGrant:() => {
+      Animated.spring(scale,{toValue:0.95,useNativeDriver:true}).start()
     },
-    onPanResponderMove : (_,{dx,dy})=>{
-      //dy,dx는 손가락이 이동한거리 이기때문에 0에서부터 시작한다
-      //사용자에 터치에따라 위치 변경
-      POSITION.setValue({
-        x:dx,
-        y:dy
-      })
-    },
-    //사용자가 손을 떼었을때
-    onPanResponderRelease:()=>{
-      //터치가 끝나면 오프셋 초기화
-      POSITION.flattenOffset();
-      // Animated.spring(POSITION,{
-      //   toValue:{
-      //     x:0,
-      //     y:0
-      //   },
-      //   useNativeDriver:false
-      // }).start()
+    // onPanResponderRelease:() => onPressOut()
+  })).current
 
-
-    }
-  })).current;
-  console.log(panResponder)
+  // console.log(scale)
   return (
     <Container>
-        <AnimatedBox 
-        {...panResponder.panHandlers}
-        style={{
-          borderRadius,
-          backgroundColor:bgColor,
-          transform : POSITION.getTranslateTransform()
-        }} 
-        />
-
-{/* {...panResponder.panHandlers}
-        style={{
-          borderRadius,
-          backgroundColor:bgColor,
-          transform : [...POSITION.getTranslateTransform()]
-        }} */}
+      <AnimatedBox 
+      {...panResponse.panHandlers}
+      styled={{
+        transform:[{scale}]
+      }}>
+        <Ionicons name='pizza' color="#192a56" size={98}/>
+      </AnimatedBox>
     </Container>
   );
 }
